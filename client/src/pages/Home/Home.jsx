@@ -116,7 +116,7 @@ const Home = () => {
     setShowMesg({ isshown: true, message: message, type: type });
   };
   const handleCloseToast = () => {
-    setShowMesg({ isshown: false, message: "" });
+    setShowMesg({ isshown: false, message: "", type: "add" });
   };
   useEffect(() => {
     getNotes();
@@ -132,7 +132,7 @@ const Home = () => {
       />
       <div className="container mx-auto">
         {allNotes?.length > 0 ? (
-          <div className="grid grid-cols-3 gap-4 mt-8">
+          <div className="grid sm:grid-cols-3 gap-4 mt-8">
             {allNotes && allNotes.length > 0 ? (
               allNotes.map((item, index) => (
                 <NoteCard
@@ -173,13 +173,17 @@ const Home = () => {
         }}
         ariaHideApp={false}
         contentLabel=""
-        className="w-[40%] max-h-3/4 bg-white rounded-md mx-auto mt-14 p-5"
+        className="w-[85%] md:w-[40%] max-h-3/4 bg-white rounded-md mx-auto mt-14 p-5"
       >
         <AddEditNote
           type={openAddEditModal.type}
           noteData={openAddEditModal.data}
           onClose={() => {
-            setOpenAddEditModal({ ...openAddEditModal, isShown: false });
+            setOpenAddEditModal({
+              ...openAddEditModal,
+              isShown: false,
+              type: "add",
+            });
           }}
           getNotes={getNotes}
           showToastMessage={showToastMessage}
