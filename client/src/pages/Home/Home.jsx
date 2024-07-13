@@ -24,6 +24,7 @@ const Home = () => {
 
   const [userInfo, setUserInfo] = useState(null);
   const [allNotes, setAllNotes] = useState(null);
+  const [isearch, setsearch] = useState(false);
 
   //edit handle
   const handleEdit = (noteDetail) => {
@@ -73,6 +74,44 @@ const Home = () => {
     }
   };
 
+  //search note
+  const onSearch = async (query) => {
+    try {
+      const response = await instance.get(`/api/note/search-note`, {
+        params: { query },
+      });
+      if (response.data && response.data.notes) {
+        setsearch(true);
+        setAllNotes(response.data.notes);
+      }
+    } catch (error) {
+      console.log("An error occurred while searching note");
+    }
+  };
+
+  //PIN NOTE
+  const pinNote = async (noteData) => {
+    try {
+      const response = await instance.put(
+        `/api/note/update-note-pinned/${noteData._id}`,
+        {
+          ispinned: !noteData.ispinned,
+        }
+      );
+      if (response.data && response.data.note) {
+        showToastMessage("Note Updated successfully", "add");
+        getNotes();
+      }
+    } catch (error) {
+      console.log("An error occurred while editing note");
+    }
+  };
+
+  const handleclearSearch = () => {
+    setsearch(false);
+    getNotes();
+  };
+
   const showToastMessage = (message, type) => {
     setShowMesg({ isshown: true, message: message, type: type });
   };
@@ -86,7 +125,11 @@ const Home = () => {
   }, []);
   return (
     <>
-      <Navbar userInfo={userInfo} />
+      <Navbar
+        userInfo={userInfo}
+        onSearch={onSearch}
+        handleclearSearch={handleclearSearch}
+      />
       <div className="container mx-auto">
         {allNotes?.length > 0 ? (
           <div className="grid grid-cols-3 gap-4 mt-8">
@@ -101,7 +144,7 @@ const Home = () => {
                   isPinned={item.ispinned}
                   onEdit={() => handleEdit(item)}
                   onDelete={() => deleteNote(item._id)}
-                  onPinNote={() => {}}
+                  onPinNote={() => pinNote(item)}
                 />
               ))
             ) : (
@@ -109,7 +152,7 @@ const Home = () => {
             )}
           </div>
         ) : (
-          <EmptyCard />
+          <EmptyCard isearch={isearch} />
         )}
       </div>
       <button
