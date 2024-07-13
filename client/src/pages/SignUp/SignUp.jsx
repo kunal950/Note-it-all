@@ -1,16 +1,18 @@
 import React, { useState } from "react";
 import PasswordInput from "../../components/Input/PasswordInput";
 import Navbar from "../../components/Navbar/Navbar";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { validateEmail } from "../../utils/helper";
+import instance from "../../utils/axios.intance";
 
 const SignUp = () => {
+  const Navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
   const [error, setError] = useState(null);
-  const handleSignUp = (e) => {
+  const handleSignUp = async (e) => {
     e.preventDefault();
     if (!email || !password || !name || !currentPassword) {
       setError("All fields are required");
@@ -32,6 +34,31 @@ const SignUp = () => {
     setError(null);
 
     //Signup api call
+    try {
+      const response = await instance.post("/api/auth/register", {
+        name,
+        email,
+        password,
+      });
+      if (response.data && response.data.error) {
+        setError(response.data.message);
+        return;
+      }
+      if (response.data && response.data.accessToken) {
+        localStorage.setItem("token", response.data.accessToken);
+        Navigate("/dashboard");
+      }
+    } catch (error) {
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        setError(error.response.data.message);
+      } else {
+        setError("Something went wrong. Please try again.");
+      }
+    }
   };
   return (
     <>

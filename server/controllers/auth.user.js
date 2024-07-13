@@ -4,7 +4,6 @@ const bcrypt = require("bcrypt");
 
 module.exports.register = async (req, res, next) => {
   const { name, email, password } = req.body;
-  console.log(name, email, password);
   if (!name || !email || !password) {
     return res
       .status(400)
@@ -21,9 +20,7 @@ module.exports.register = async (req, res, next) => {
   const accessToken = jwt.sign({ user }, process.env.JWT_SECRET, {
     expiresIn: "1d",
   });
-  res.cookie("token", accessToken, {
-    httpOnly: true,
-  });
+
   return res.json({
     error: false,
     user,
@@ -50,9 +47,7 @@ module.exports.login = async (req, res, next) => {
   const accessToken = jwt.sign({ user }, process.env.JWT_SECRET, {
     expiresIn: "1d",
   });
-  res.cookie("token", accessToken, {
-    httpOnly: true,
-  });
+
   return res.json({
     error: false,
     user,

@@ -1,13 +1,15 @@
 import React, { useState } from "react";
 import Navbar from "../../components/Navbar/Navbar";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import PasswordInput from "../../components/Input/PasswordInput";
 import { validateEmail } from "../../utils/helper";
+import instance from "../../utils/axios.intance";
 const Login = () => {
+  const Navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     if (!email || !password) {
       setError("All fields are required");
@@ -24,6 +26,28 @@ const Login = () => {
     setError(null);
 
     //login api call
+    try {
+      const response = await instance.post("/api/auth/login", {
+        email,
+        password,
+      });
+      if (!response.data.error && response.data && response.data.accessToken) {
+        localStorage.setItem("token", response.data.accessToken);
+        Navigate("/dashboard");
+      } else if (response.data.error) {
+        setError(response.data.message);
+      }
+    } catch (error) {
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        setError(error.response.data.message);
+      } else {
+        setError("Something went wrong. Please try again.");
+      }
+    }
   };
   return (
     <>

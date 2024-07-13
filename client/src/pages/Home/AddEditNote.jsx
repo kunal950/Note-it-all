@@ -1,15 +1,55 @@
 import React, { useState } from "react";
 import { MdClose } from "react-icons/md";
 import TagInput from "../../components/Input/TagInput";
-const AddEditNote = ({ noteData, type, onClose }) => {
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [tags, setTags] = useState([]);
+import instance from "../../utils/axios.intance";
+const AddEditNote = ({
+  noteData,
+  type,
+  onClose,
+  getNotes,
+  showToastMessage,
+}) => {
+  const [title, setTitle] = useState(noteData?.title || "");
+  const [content, setContent] = useState(noteData?.content || "");
+  const [tags, setTags] = useState(noteData?.tags || []);
   const [error, setError] = useState(null);
 
   //add and edit note functions
-  const addNewNote = async () => {};
-  const editNote = async () => {};
+  const addNewNote = async () => {
+    try {
+      const response = await instance.post("/api/note/add-note", {
+        title,
+        content,
+        tags,
+      });
+      if (response.data && response.data.note) {
+        showToastMessage("Note added successfully", "add");
+        getNotes();
+        onClose();
+      }
+    } catch (error) {
+      console.log("An error occurred while adding note");
+    }
+  };
+  const editNote = async () => {
+    try {
+      const response = await instance.put(
+        `/api/note/edit-note/${noteData._id}`,
+        {
+          title,
+          content,
+          tags,
+        }
+      );
+      if (response.data && response.data.note) {
+        showToastMessage("Note Updated successfully", "add");
+        getNotes();
+        onClose();
+      }
+    } catch (error) {
+      console.log("An error occurred while editing note");
+    }
+  };
 
   const handleAddNote = () => {
     if (title.trim() === "" || content.trim() === "") {
@@ -67,7 +107,7 @@ const AddEditNote = ({ noteData, type, onClose }) => {
         className="btn-primary font-medium mt-5 p-3"
         onClick={handleAddNote}
       >
-        ADD
+        {type === "add" ? "ADD NOTE" : "EDIT NOTE"}
       </button>
     </div>
   );

@@ -3,7 +3,6 @@ const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
-const jwt = require("jsonwebtoken");
 
 //import files
 const { authenticate } = require("./utils/authentication");

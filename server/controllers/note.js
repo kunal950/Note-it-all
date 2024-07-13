@@ -107,3 +107,28 @@ module.exports.Pinned = async (req, res, next) => {
     return res.status(500).json({ error: true, message: "Server error" });
   }
 };
+module.exports.SearchForNote = async (req, res, next) => {
+  const { user } = req.user;
+  const { query } = req.query;
+  if (!query) {
+    return res.status(400).json({ error: true, message: "Query is required" });
+  }
+
+  try {
+    const notes = await Note.find({
+      userId: user._id,
+      $or: [
+        { title: { $regex: new RegExp(query, "i") } },
+        { content: { $regex: new RegExp(query, "i") } },
+        { tags: { $regex: new RegExp(query, "i") } },
+      ],
+    });
+    return res.json({
+      error: false,
+      notes,
+      message: "All notes fetched successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({ error: true, message: "Server error" });
+  }
+};
